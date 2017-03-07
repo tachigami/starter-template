@@ -33,7 +33,9 @@ gulp.task('watch', ['build'], function() {
     gulp.watch(paths.html, ['html']);
 });
 
-gulp.task('live', ['php', 'browser-sync', 'watch']);
+gulp.task('live', ['browserSync-php', 'watch']);
+
+gulp.task('live:html', ['browserSync-html', 'watch']);
 
 gulp.task('html', function() {
     return gulp.src(paths.html)
@@ -75,14 +77,22 @@ gulp.task('clean', function() {
     ]);
 });
 
-gulp.task('browser-sync', function() {
-    browserSync({
-        proxy: '127.0.0.1:8888'
+gulp.task('browserSync-php', function() {
+    connectPHP.server({ base: 'public', keepalive:true, hostname: 'localhost', port:8888, open: false}, function() {
+        browserSync({
+            proxy: '127.0.0.1:8888',
+            notify: false
+        });
     });
 });
 
-gulp.task('php', function(){
-  connectPHP.server({ base: 'public', keepalive:true, hostname: 'localhost', port:8888, open: false});
+gulp.task('browserSync-html', function() {
+    browserSync({
+        server: {
+            baseDir: 'public'
+        },
+        notify: false
+    });
 });
 
 gulp.task('default', ['build'])
