@@ -6,7 +6,8 @@ const gulp = require('gulp'),
     connectPHP  = require('gulp-connect-php'),
     cssnano     = require('gulp-cssnano'),
     uglify      = require('gulp-uglifyjs'),
-    del         = require('del');
+    del         = require('del')
+    autoprefixer = require('gulp-autoprefixer');
 
 const paths = {
     html: ['public/*.php'],
@@ -42,6 +43,7 @@ gulp.task('html', function() {
 gulp.task('assets:sass', function () {
     return gulp.src('assets/sass/*.scss')
         .pipe(sass().on('error', sass.logError))
+        .pipe(autoprefixer(['last 15 versions', '> 1%', 'ie 8', 'ie 7'], { cascade: true }))
         .pipe(gulp.dest('public/css'))
         .pipe(reload({stream: true}));
 });
