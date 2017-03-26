@@ -37,7 +37,8 @@ gulp.task('live', ['watch'], function () {
     connectPHP.server({base: './public', keepalive: true, hostname: 'localhost', port: 8888, open: false});
     browserSync.init({
         proxy: '127.0.0.1:8888',
-        notify: false
+        notify: false,
+        open: false
     });
 });
 
@@ -46,7 +47,8 @@ gulp.task('live:html', ['watch'], function () {
         server: {
             baseDir: './public'
         },
-        notify: false
+        notify: false,
+        open: false
     });
 });
 
