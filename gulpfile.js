@@ -1,21 +1,23 @@
-const gulp = require('gulp'),
-    sass = require('gulp-sass'),
-    browserSync = require('browser-sync').create(),
-    reload = browserSync.reload,
-    concat = require('gulp-concat'),
-    connectPHP = require('gulp-connect-php'),
-    cssnano = require('gulp-cssnano'),
-    uglify = require('gulp-uglifyjs'),
-    del = require('del'),
-    autoprefixer = require('gulp-autoprefixer');
+'use strict';
 
-const paths = {
+var gulp = require('gulp');
+var sass = require('gulp-sass');
+var browserSync = require('browser-sync').create();
+var reload = browserSync.reload;
+var concat = require('gulp-concat');
+var connectPHP = require('gulp-connect-php');
+var cssnano = require('gulp-cssnano');
+var uglify = require('gulp-uglifyjs');
+var del = require('del');
+var autoprefixer = require('gulp-autoprefixer');
+
+var paths = {
     html: ['public/*.php', 'public/*.html'],
     sass: ['assets/sass/**/*'],
     js: ['assets/js/**/*.js']
 };
 
-const vendor = {
+var vendor = {
     css: [
         'libs/bootstrap/dist/css/bootstrap.min.css'
     ],
@@ -54,7 +56,7 @@ gulp.task('live:html', ['watch'], function () {
 
 gulp.task('html', function () {
     return gulp.src(paths.html)
-        .pipe(reload({stream: true}))
+        .pipe(reload({stream: true}));
 });
 
 gulp.task('assets:sass', function () {
