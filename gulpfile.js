@@ -5,7 +5,6 @@ var gulp = require('gulp');
 var _if = require('gulp-if');
 var sass = require('gulp-sass');
 var browserSync = require('browser-sync').create();
-var reload = browserSync.reload;
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var cleanCss = require('gulp-clean-css');
@@ -21,31 +20,8 @@ var notify = require('gulp-notify');
 var connectPhp = require('gulp-connect-php');
 var fileinclude = require('gulp-file-include');
 
-var options = {
-    useTemplates: true,
-    production: false,
-    openBrowser: true,
-    notifications: false,
-    phpProxyHost: '127.0.0.1',
-    phpProxyPort: 8888,
-    srcDir: 'assets',
-    destDir: 'public'
-};
-
-/**
- * Содержит пути к библиотекам, установленных с помощью Yarn и компилирующихся в vendor.min.(css|js)
- */
-var libs = {
-    sass: [
-        './node_modules/bootstrap-sass-grid/sass/bootstrap-sass-grid.scss',
-    ],
-    css: [
-        './node_modules/normalize.css/normalize.css',
-    ],
-    js: [
-        './node_modules/jquery/dist/jquery.min.js',
-    ]
-};
+var options = require('./options');
+var libs = require('./libs');
 
 var paths = {
     sass: {
