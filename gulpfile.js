@@ -46,7 +46,7 @@ var paths = {
     },
     fonts: {
         src: options.srcDir + '/fonts',
-        dest: options.destDir + '/',
+        dest: options.destDir + '/fonts',
         mask: '/**/*.*'
     },
     watch: {
@@ -133,8 +133,8 @@ gulp.task('assets:fonts', function () {
         .pipe(gulp.dest(paths.fonts.dest));
 });
 
-gulp.task('vendor:js', function () {
-    return gulp.src(libs.js)
+gulp.task('vendor:scripts', function () {
+    return gulp.src(libs.scripts)
         .pipe(plumber({errorHandle: handleError}))
         .pipe(_if(!options.production, sourcemaps.init()))
         .pipe(concat(paths.vendor.js))
@@ -143,18 +143,8 @@ gulp.task('vendor:js', function () {
         .pipe(gulp.dest(paths.js.dest));
 });
 
-gulp.task('vendor:css', function () {
-    return gulp.src(libs.css)
-        .pipe(plumber({errorHandle: handleError}))
-        .pipe(_if(!options.production, sourcemaps.init()))
-        .pipe(concat(paths.vendor.css))
-        .pipe(cleanCss())
-        .pipe(_if(!options.production, sourcemaps.write()))
-        .pipe(gulp.dest(paths.sass.dest))
-});
-
-gulp.task('vendor:sass', function () {
-    return gulp.src(libs.sass)
+gulp.task('vendor:styles', function () {
+    return gulp.src(libs.styles)
         .pipe(plumber({errorHandle: handleError}))
         .pipe(sass().on('error', handleError))
         .pipe(concat(paths.vendor.css))
@@ -222,9 +212,8 @@ gulp.task('live', ['watch'], function () {
 
 gulp.task('build', [
     'clean',
-    'vendor:sass',
-    'vendor:css',
-    'vendor:js',
+    'vendor:styles',
+    'vendor:scripts',
     'assets:sass',
     'assets:js',
     'assets:img',

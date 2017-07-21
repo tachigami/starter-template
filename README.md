@@ -41,13 +41,10 @@ yarn
 
 ```text
 {
-    sass: [
+    styles: [
         './node_modules/bootstrap-sass-grid/sass/bootstrap-sass-grid.scss'
     ],
-    css: [
-        './node_modules/normalize.css/normalize.css'
-    ],
-    js: [
+    scripts: [
         './node_modules/jquery/dist/jquery.min.js'
     ]
 }
