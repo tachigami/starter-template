@@ -4,9 +4,10 @@
  */
 module.exports = {
     styles: [
-    	'./node_modules/bootstrap-sass-grid/sass/bootstrap-sass-grid.scss',
+    	'node_modules/bootstrap-sass-grid/sass/bootstrap-sass-grid.scss',
     ],
     scripts: [
-        './node_modules/jquery/dist/jquery.min.js',
+        'node_modules/jquery/dist/jquery.min.js',
+        'node_modules/jquery-migrate/dist/jquery-migrate.min.js',
     ]
 }
