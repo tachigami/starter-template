@@ -153,10 +153,9 @@ gulp.task('vendor:styles', function () {
         .pipe(gulp.dest(paths.sass.dest))
 });
 
-gulp.task('clean', ['clear'], function (cb) {
-
+gulp.task('clean', ['clear'], function () {
     if (options.useTemplates) {
-        del.sync([options.destDir + '/**/*', '!' + options.destDir + '/.gitkeep'], {dot: true}, cb);
+        return del.sync([options.destDir + '/**/*', '!' + options.destDir + '/.gitkeep'], {dot: true});
     } else {
         return del.sync([
             paths.js.dest,
