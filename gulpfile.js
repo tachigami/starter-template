@@ -77,10 +77,12 @@ var handleWatchEvent = function (event, filePath, description) {
         console.log(destFilePath);
         del.sync(destFilePath);
     }
-    notify({
-        title: 'Gulp Task Complete',
-        message: description + ' has been compiled'
-    }).write('');
+    if (options.notifications) {
+        notify({
+            title: 'Gulp Task Complete',
+            message: description + ' has been compiled'
+        }).write('');
+    }
 };
 
 gulp.task('assets:html', function () {
