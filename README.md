@@ -25,9 +25,14 @@ sudo npm i -g gulp
 yarn
 ```
 
+##### Подключение библиотек вручную (js/css/sass)
+Такая ситуация может возникнуть, если необходимо модифицировать уже существующую, модифицировать или подключить старую библиотеку, отсутствующую в репозитории npm.
+Для этого необходимо создать новую директорию на одном уровне с gulpfile.js, назвать её, допустим, `libs` и поместить туда необходимые файлы и директории библиотек. Подключаются библиотеки так же, как и файлы из node_modules внутри `libs.js` указав путь `libs/путь/до/файла`.
+
 ##### Пример использования:
 * `gulp` или `gulp build` - Запускет сборку
-* `gulp production` - Запускает оптимизированную сборку
+* `gulp production` - Запускает оптимизированную пересборку assets (не удаляет и не собирает vendor)
+* `gulp vendor` - Запускает сборку vendor
 * `gulp watch` - Запускает сборку и слежение за изменениями файлов
 * `gulp live` - Запускает BrowserSync
 * `gulp php` - Запускает BrowserSync с PHP
@@ -42,28 +47,16 @@ yarn
 ```text
 {
     styles: [
-        './node_modules/bootstrap-sass-grid/sass/bootstrap-sass-grid.scss'
+        'node_modules/bootstrap-sass-grid/sass/bootstrap-sass-grid.scss'
     ],
     scripts: [
-        './node_modules/jquery/dist/jquery.min.js'
+        'node_modules/jquery/dist/jquery.min.js'
     ]
 }
 ```
 
 В файле `options.js` содержатся настройки сборки.
-```text
-{
-    useTemplates: true,
-    production: false,
-    openBrowser: true,
-    notifications: true,
-    host: '127.0.0.1',
-    phpProxyPort: 8888,
-    srcDir: 'assets',
-    destDir: 'public'
-}
-```
-* **useTemplates** - Включает компилирование HTML шаблонов их перемещение и отчистку пути их компилирование `destDir`, необходима, при переносе сборки на продакшн или когда не нужна компиляция шаблонов, а только стилей, скриптов и картинок.
+* **useTemplates** - Включает компилирование HTML шаблонов их перемещение и очистку пути их компилирование `destDir`, необходима, при переносе сборки на продакшн или когда не нужна компиляция шаблонов, а только стилей, скриптов и картинок.
 * **production** - Выключает то, что не требуется на продакшене, напр. создание source-map для стилей для уменьшения размера конечных файлов. Для разового запуска существует команда `gulp production`
 * **openBrowser** - Открывает окно браузера при запуске browser-sync.
 * **notifications** - Выводит уведомления о выполнении определенных задач.
@@ -71,3 +64,8 @@ yarn
 * **phpProxyPort** - Порт на котором BrowserSync будет обращаться к серверу PHP.
 * **srcDir** - Папка с исходниками.
 * **destDir** - Папка со скомпилированными.
+* **jpeg** - Параметры работы плагина сжатия [jpegoptim](https://www.npmjs.com/package/imagemin-jpegoptim)
+* **png** - Параметры работы плагина сжатия [pngquant](https://www.npmjs.com/package/imagemin-pngquant)
+
+##### Примечание!
+* Настройка `useTemplates` удаляет все файлы и директории из `destDir`
