@@ -142,7 +142,7 @@ gulp.task('assets:fonts', function () {
         .pipe(gulp.dest(paths.fonts.dest));
 });
 
-gulp.task('vendor:scripts', function () {
+gulp.task('vendor:js', function () {
     return gulp.src(libs.scripts)
         .pipe(plumber({errorHandle: handleError}))
         .pipe(_if(!options.production, sourcemaps.init()))
@@ -219,7 +219,7 @@ gulp.task('live', ['watch'], function () {
 gulp.task('build', [
     'clean',
     'vendor:styles',
-    'vendor:scripts',
+    'vendor:js',
     'assets:sass',
     'assets:js',
     'assets:img',
@@ -229,7 +229,9 @@ gulp.task('build', [
 
 gulp.task('production', function () {
     options.production = true;
-    gulp.run('build')
+    gulp.run(['assets:sass', 'assets:js'])
 });
+
+gulp.task('vendor', ['vendor:styles', 'vendor:js']);
 
 gulp.task('default', ['build']);
