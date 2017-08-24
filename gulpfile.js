@@ -100,7 +100,7 @@ gulp.task('assets:sass', function () {
         .pipe(sass().on('error', handleError))
         .pipe(autoprefixer(['last 15 versions', '> 1%', 'ie 8', 'ie 7'], {cascade: true}))
         .pipe(cleanCss())
-        .pipe(_if(!options.production, sourcemaps.write()))
+        .pipe(_if(!options.production, sourcemaps.write('.')))
         .pipe(gulp.dest(paths.sass.dest))
         .pipe(browserSync.stream({once: true}))
 });
@@ -111,7 +111,7 @@ gulp.task('assets:js', function () {
         .pipe(_if(!options.production, sourcemaps.init()))
         .pipe(fileinclude())
         .pipe(uglify())
-        .pipe(_if(!options.production, sourcemaps.write()))
+        .pipe(_if(!options.production, sourcemaps.write('.')))
         .pipe(gulp.dest(paths.js.dest))
         .pipe(browserSync.stream({once: true}))
 });
@@ -146,7 +146,7 @@ gulp.task('vendor:scripts', function () {
         .pipe(_if(!options.production, sourcemaps.init()))
         .pipe(concat(paths.vendor.js))
         .pipe(uglify())
-        .pipe(_if(!options.production, sourcemaps.write()))
+        .pipe(_if(!options.production, sourcemaps.write('.')))
         .pipe(gulp.dest(paths.js.dest));
 });
 
@@ -154,9 +154,11 @@ gulp.task('vendor:styles', function () {
     return gulp.src(libs.styles)
         .pipe(plumber({errorHandle: handleError}))
         .pipe(sass().on('error', handleError))
+        .pipe(_if(!options.production, sourcemaps.init()))
         .pipe(concat(paths.vendor.css))
         .pipe(autoprefixer(['last 15 versions', '> 1%', 'ie 8', 'ie 7'], {cascade: true}))
         .pipe(cleanCss())
+        .pipe(_if(!options.production, sourcemaps.write('.')))
         .pipe(gulp.dest(paths.sass.dest))
 });
 
