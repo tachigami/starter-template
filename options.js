@@ -10,5 +10,12 @@ module.exports = {
     phpProxyHost: '127.0.0.1',
     phpProxyPort: 8888,
     srcDir: 'assets',
-    destDir: 'public'
+    destDir: 'public',
+    jpeg: {
+        max: 60
+    },
+    png: {
+        quality: 60,
+        nofs: true
+    }
 };

@@ -12,6 +12,7 @@ var rename = require('gulp-rename');
 var del = require('del');
 var imagemin = require('gulp-imagemin');
 var pngquant = require('imagemin-pngquant');
+var jpegoptim = require('imagemin-jpegoptim');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
 var plumber = require('gulp-plumber');
@@ -117,12 +118,19 @@ gulp.task('assets:js', function () {
 
 gulp.task('assets:img', function () {
     return gulp.src(paths.img.src + paths.img.mask)
-        .pipe(cache(imagemin({
-            interlaced: true,
-            progressive: true,
-            svgoPluggins: [{removeViewBox: false}],
-            use: [pngquant()]
-        })))
+        .pipe(imagemin([
+            imagemin.gifsicle({interlaced: true}),
+            jpegoptim(options.jpeg),
+            pngquant(options.png),
+            imagemin.svgo({
+                plugins: [
+                    {removeViewBox: false},
+                    {cleanupIDs: false}
+                ]
+            })
+        ], {
+            verbose: true
+        }))
         .pipe(gulp.dest(paths.img.dest))
         .pipe(browserSync.stream({once: true}))
 });
