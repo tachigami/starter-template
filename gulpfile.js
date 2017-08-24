@@ -12,7 +12,6 @@ var rename = require('gulp-rename');
 var del = require('del');
 var imagemin = require('gulp-imagemin');
 var pngquant = require('imagemin-pngquant');
-var cache = require('gulp-cache');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
 var plumber = require('gulp-plumber');
@@ -153,7 +152,7 @@ gulp.task('vendor:styles', function () {
         .pipe(gulp.dest(paths.sass.dest))
 });
 
-gulp.task('clean', ['clear'], function () {
+gulp.task('clean', function () {
     if (options.useTemplates) {
         return del.sync([options.destDir + '/**/*', '!' + options.destDir + '/.gitkeep'], {dot: true});
     } else {
@@ -164,10 +163,6 @@ gulp.task('clean', ['clear'], function () {
             paths.fonts.dest
         ]);
     }
-});
-
-gulp.task('clear', function () {
-    return cache.clearAll();
 });
 
 gulp.task('watch', ['build'], function () {
