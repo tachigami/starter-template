@@ -12,6 +12,7 @@ module.exports = {
     srcDir: 'assets',
     destDir: 'public',
     jpeg: {
+        progressive: true,
         max: 60
     },
     png: {
