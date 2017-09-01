@@ -13,10 +13,10 @@ module.exports = {
     destDir: 'public',
     jpeg: {
         progressive: true,
-        max: 60
+        max: 90
     },
     png: {
-        quality: 60,
-        nofs: true
+        optimizationLevel: 5,
+        strip: 'all'
     }
 };

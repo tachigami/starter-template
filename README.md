@@ -17,7 +17,7 @@
 Перед началом работы необходимо установить Nodejs 7 с [официального сайта Node](https://nodejs.org/en/download/)
 1. Установить gulp
 ```bash
-sudo npm i -g gulp
+sudo npm i -g gulp-cli
 ```
 2. Установить yarn подходящим способом для своей ОС с [официального сайта Yarn](https://yarnpkg.com/en/docs/install)
 3. Установит зависимости командой

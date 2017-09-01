@@ -11,7 +11,7 @@ var cleanCss = require('gulp-clean-css');
 var rename = require('gulp-rename');
 var del = require('del');
 var imagemin = require('gulp-imagemin');
-var pngquant = require('imagemin-pngquant');
+var optipng = require('imagemin-optipng');
 var jpegoptim = require('imagemin-jpegoptim');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
@@ -120,10 +120,11 @@ gulp.task('assets:js', function () {
 
 gulp.task('assets:img', function () {
     return gulp.src(paths.img.src + paths.img.mask)
+        .pipe(plumber({errorHandle: handleError}))
         .pipe(imagemin([
             imagemin.gifsicle({interlaced: true}),
             jpegoptim(options.jpeg),
-            pngquant(options.png),
+            optipng(options.png),
             imagemin.svgo({
                 plugins: [
                     {removeViewBox: false},
