@@ -16,7 +16,16 @@ module.exports = {
         max: 90
     },
     png: {
-        optimizationLevel: 5,
-        strip: 'all'
+        lossless: true,
+        // lossless
+        optipng: {
+            optimizationLevel: 3,
+            strip: 'all'
+        },
+        // lossy
+        pngquant: {
+            quality: 80,
+            speed: 1
+        }
     }
 };

@@ -12,6 +12,7 @@ var rename = require('gulp-rename');
 var del = require('del');
 var imagemin = require('gulp-imagemin');
 var optipng = require('imagemin-optipng');
+var pngquant = require('imagemin-pngquant');
 var jpegoptim = require('imagemin-jpegoptim');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
@@ -124,7 +125,7 @@ gulp.task('assets:img', function () {
         .pipe(imagemin([
             imagemin.gifsicle({interlaced: true}),
             jpegoptim(options.jpeg),
-            optipng(options.png),
+            _if(options.png.lossless, optipng(options.png.optipng), pngquant(options.png.pngquant)),
             imagemin.svgo({
                 plugins: [
                     {removeViewBox: false},
