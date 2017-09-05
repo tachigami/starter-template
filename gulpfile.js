@@ -54,7 +54,8 @@ var paths = {
         sass: options.srcDir + '/sass/**/*.+(sass|scss)',
         js: options.srcDir + '/js/**/*.js',
         img: options.srcDir + '/img/**/*.+(png|jpg|jpeg|gif|svg)',
-        html: options.srcDir + '/**/*.+(html|php)'
+        html: options.srcDir + '/**/*.+(html|php)',
+        fonts: options.srcDir + '/fonts/**/*'
     },
     vendor: {
         css: 'vendor.min.css',
@@ -189,7 +190,7 @@ gulp.task('watch', ['build'], function () {
     gulp.watch(paths.watch.img, ['assets:img']).on('change', function (event) {
         handleWatchEvent(event, paths.img, 'IMG')
     });
-    gulp.watch(paths.watch.img, ['assets:fonts']).on('change', function (event) {
+    gulp.watch(paths.watch.fonts, ['assets:fonts']).on('change', function (event) {
         handleWatchEvent(event, paths.fonts, 'FONTS')
     });
     if (options.useTemplates) {
