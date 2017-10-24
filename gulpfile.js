@@ -28,12 +28,12 @@ var paths = {
     sass: {
         src: options.srcDir + '/sass',
         dest: options.destDir + '/css',
-        mask: '/**/*.*'
+        mask: '/*.+(sass|scss)'
     },
     js: {
         src: options.srcDir + '/js',
         dest: options.destDir + '/js',
-        mask: '/**/*.*'
+        mask: '/*.js'
     },
     img: {
         src: options.srcDir + '/img',
