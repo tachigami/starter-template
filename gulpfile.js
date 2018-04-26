@@ -20,6 +20,7 @@ var plumber = require('gulp-plumber');
 var notify = require('gulp-notify');
 var connectPhp = require('gulp-connect-php');
 var fileinclude = require('gulp-file-include');
+var exists = require('files-exist');
 
 var options = require('./options');
 var libs = require('./libs');
@@ -148,7 +149,7 @@ gulp.task('assets:fonts', function () {
 });
 
 gulp.task('vendor:js', function () {
-    return gulp.src(libs.scripts)
+    return gulp.src(exists(libs.scripts))
         .pipe(plumber({errorHandle: handleError}))
         .pipe(_if(!options.production, sourcemaps.init()))
         .pipe(concat(paths.vendor.js))
@@ -158,7 +159,7 @@ gulp.task('vendor:js', function () {
 });
 
 gulp.task('vendor:styles', function () {
-    return gulp.src(libs.styles)
+    return gulp.src(exists(libs.styles))
         .pipe(plumber({errorHandle: handleError}))
         .pipe(sass().on('error', handleError))
         .pipe(_if(!options.production, sourcemaps.init()))
