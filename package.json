@@ -1,34 +1,40 @@
 {
   "private": true,
+  "browserslist": [
+    ">1%",
+    "not ie 11",
+    "not op_mini all"
+  ],
   "devDependencies": {
-    "browser-sync": "^2.18.13",
+    "browser-sync": "^2.0.0",
     "del": "^3.0.0",
-    "files-exist": "^1.0.2",
-    "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^4.0.0",
-    "gulp-clean-css": "^3.7.0",
+    "gulp": "^4.0.0",
+    "gulp-autoprefixer": "^6.0.0",
+    "gulp-changed": "^3.2.0",
+    "gulp-clean-css": "^4.0.0",
     "gulp-concat": "^2.6.1",
-    "gulp-connect-php": "^1.0.1",
-    "gulp-file-include": "^1.2.0",
+    "gulp-file-include": "^2.0.0",
     "gulp-if": "^2.0.2",
-    "gulp-imagemin": "^3.3.0",
+    "gulp-imagemin": "^5.0.3",
+    "gulp-newer": "^1.4.0",
     "gulp-notify": "^3.0.0",
     "gulp-plumber": "^1.1.0",
     "gulp-rename": "^1.2.2",
-    "gulp-sass": "^3.1.0",
+    "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.1",
     "gulp-uglify": "^3.0.0",
-    "imagemin-jpegoptim": "^5.1.0",
-    "imagemin-optipng": "^5.2.1",
-    "imagemin-pngquant": "^5.0.1",
-    "jpegoptim-bin": "^3.0.0",
-    "optipng-bin": "^4.0.0",
+    "imagemin-jpegoptim": "^6.0.0",
+    "imagemin-optipng": "^6.0.0",
+    "imagemin-pngquant": "^7.0.0",
+    "jpegoptim-bin": "^5.0.0",
+    "merge-stream": "^1.0.1",
+    "optipng-bin": "^5.0.0",
     "path": "^0.12.7",
-    "pngquant-bin": "^3.1.1"
+    "pngquant-bin": "^5.0.1"
   },
   "dependencies": {
-    "bootstrap-sass-grid": "^4.0.1",
-    "jquery": "^3.2.1",
-    "jquery-migrate": "^3.0.0"
+    "@fancyapps/fancybox": "^3.4.1",
+    "bootstrap-4-grid": "^2.4.1",
+    "jquery": "^3.2.1"
   }
 }

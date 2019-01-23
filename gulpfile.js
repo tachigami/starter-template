@@ -1,243 +1,286 @@
 'use strict';
 
-var path = require('path');
-var gulp = require('gulp');
-var _if = require('gulp-if');
-var sass = require('gulp-sass');
-var browserSync = require('browser-sync').create();
-var concat = require('gulp-concat');
-var uglify = require('gulp-uglify');
-var cleanCss = require('gulp-clean-css');
-var rename = require('gulp-rename');
-var del = require('del');
-var imagemin = require('gulp-imagemin');
-var optipng = require('imagemin-optipng');
-var pngquant = require('imagemin-pngquant');
-var jpegoptim = require('imagemin-jpegoptim');
-var autoprefixer = require('gulp-autoprefixer');
-var sourcemaps = require('gulp-sourcemaps');
-var plumber = require('gulp-plumber');
-var notify = require('gulp-notify');
-var connectPhp = require('gulp-connect-php');
-var fileinclude = require('gulp-file-include');
-var exists = require('files-exist');
+const gulp = require('gulp');
+const path = require('path');
+const _if = require('gulp-if');
+const sass = require('gulp-sass');
+const browserSync = require('browser-sync');
+const concat = require('gulp-concat');
+const uglify = require('gulp-uglify');
+const cleanCss = require('gulp-clean-css');
+const rename = require('gulp-rename');
+const del = require('del');
+const imagemin = require('gulp-imagemin');
+const optipng = require('imagemin-optipng');
+const pngquant = require('imagemin-pngquant');
+const jpegoptim = require('imagemin-jpegoptim');
+const autoprefixer = require('gulp-autoprefixer');
+const sourcemaps = require('gulp-sourcemaps');
+const plumber = require('gulp-plumber');
+const notify = require('gulp-notify');
+const fileinclude = require('gulp-file-include');
+const changed = require('gulp-changed');
+const merge = require('merge-stream');
 
-var options = require('./options');
-var libs = require('./libs');
+const server = browserSync.create();
+const options = require('./options');
+const libs = require('./libs');
+var generateSourcemaps = true;
 
-var paths = {
-    sass: {
-        src: options.srcDir + '/sass',
-        dest: options.destDir + '/css',
-        mask: '/*.+(sass|scss)'
-    },
-    js: {
-        src: options.srcDir + '/js',
-        dest: options.destDir + '/js',
-        mask: '/*.js'
-    },
-    img: {
-        src: options.srcDir + '/img',
-        dest: options.destDir + '/img',
-        mask: '/**/*.*'
-    },
-    html: {
-        src: options.srcDir + '/templates',
-        dest: options.destDir + '/',
-        mask: '/**/[^_]*.+(html|php)'
-    },
-    fonts: {
-        src: options.srcDir + '/fonts',
-        dest: options.destDir + '/fonts',
-        mask: '/**/*.*'
-    },
-    watch: {
-        sass: options.srcDir + '/sass/**/*.+(sass|scss)',
-        js: options.srcDir + '/js/**/*.js',
-        img: options.srcDir + '/img/**/*.+(png|jpg|jpeg|gif|svg)',
-        html: options.srcDir + '/**/*.+(html|php)',
-        fonts: options.srcDir + '/fonts/**/*'
-    },
-    vendor: {
-        css: 'vendor.min.css',
-        js: 'vendor.min.js'
-    }
+const paths = {
+  sass: {
+    src: options.srcDir + '/sass',
+    dest: options.destDir + '/css',
+    mask: '/*.+(sass|scss)',
+  },
+  js: {
+    src: options.srcDir + '/js',
+    dest: options.destDir + '/js',
+    mask: '/*.js',
+  },
+  img: {
+    src: options.srcDir + '/img',
+    dest: options.destDir + '/img',
+    mask: '/**/*.*',
+  },
+  html: {
+    src: options.srcDir + '/templates',
+    dest: options.destDir + '/',
+    mask: '/**/[^_]*.+(html|php)',
+  },
+  fonts: {
+    src: options.srcDir + '/fonts',
+    dest: options.destDir + '/fonts',
+    mask: '/**/*.*',
+  },
+  watch: {
+    sass: options.srcDir + '/sass/**/*.+(sass|scss)',
+    js: options.srcDir + '/js/**/*.js',
+    img: options.srcDir + '/img/**/*.+(png|jpg|jpeg|gif|svg)',
+    html: options.srcDir + '/**/*.+(html|php)',
+    fonts: options.srcDir + '/fonts/**/*',
+  },
+  vendor: {
+    css: 'vendor.min.css',
+    js: 'vendor.min.js',
+  },
 };
 
-var handleError = function (err) {
+function reload(done) {
+  server.reload();
+  done();
+}
+
+function handleError(err) {
+  notify({
+    title: 'Gulp Task Error',
+    message: '!!!ERROR!!! Check the console.',
+  }).write(err);
+  console.log(err.toString());
+  this.emit('end');
+}
+
+function handleWatchEvent(event, filePath, description) {
+  var filePathFromSrc = path.relative(path.resolve(filePath.src), event);
+  var destFilePath = path.resolve(filePath.dest, filePathFromSrc);
+  console.log('Deleting: ' + destFilePath);
+  del.sync(destFilePath);
+  if (options.notifications) {
     notify({
-        title: 'Gulp Task Error',
-        message: '!!!ERROR!!! Check the console.'
-    }).write(err);
-    console.log(err.toString());
-    this.emit('end');
-};
+      title: 'Gulp Task Complete',
+      message: description + ' has been compiled',
+    }).write('');
+  }
+}
 
-var handleWatchEvent = function (event, filePath, description) {
-    if (event.type === 'deleted') {
-        var filePathFromSrc = path.relative(path.resolve(filePath.src), event.path);
-        var destFilePath = path.resolve(filePath.dest, filePathFromSrc);
-        console.log(destFilePath);
-        del.sync(destFilePath);
-    }
-    if (options.notifications) {
-        notify({
-            title: 'Gulp Task Complete',
-            message: description + ' has been compiled'
-        }).write('');
-    }
-};
+function sync(done) {
+  var params = {
+    scrollThrottle: 100,
+    scrollProportionally: false,
+    injectChanges: true,
+    notify: options.notifications,
+    open: options.openBrowser,
+  };
 
-gulp.task('assets:html', function () {
-    if (options.useTemplates) {
-        return gulp.src(paths.html.src + paths.html.mask)
-            .pipe(plumber({errorHandle: handleError}))
-            .pipe(fileinclude())
-            .pipe(gulp.dest(paths.html.dest))
-            .pipe(browserSync.stream({once: true}))
-    }
-});
+  if (!options.enableIntegration) {
+    params.server = {
+      baseDir: options.destDir,
+    };
+  } else {
+    params.proxy = options.proxyHost;
+  }
 
-gulp.task('assets:sass', function () {
-    return gulp.src(paths.sass.src + paths.sass.mask)
-        .pipe(plumber({errorHandle: handleError}))
-        .pipe(_if(!options.production, sourcemaps.init()))
-        .pipe(sass().on('error', handleError))
-        .pipe(autoprefixer(['last 15 versions', '> 1%', 'ie 8', 'ie 7'], {cascade: true}))
-        .pipe(cleanCss())
-        .pipe(rename({suffix: '.min'}))
-        .pipe(_if(!options.production, sourcemaps.write('.')))
-        .pipe(gulp.dest(paths.sass.dest))
-        .pipe(browserSync.stream({once: true}))
-});
+  server.init(params);
 
-gulp.task('assets:js', function () {
-    return gulp.src(paths.js.src + paths.js.mask)
-        .pipe(plumber({errorHandle: handleError}))
-        .pipe(_if(!options.production, sourcemaps.init()))
-        .pipe(fileinclude())
-        .pipe(uglify())
-        .pipe(rename({suffix: '.min'}))
-        .pipe(_if(!options.production, sourcemaps.write('.')))
-        .pipe(gulp.dest(paths.js.dest))
-        .pipe(browserSync.stream({once: true}))
-});
+  done();
+}
 
-gulp.task('assets:img', function () {
-    return gulp.src(paths.img.src + paths.img.mask)
-        .pipe(plumber({errorHandle: handleError}))
-        .pipe(imagemin([
-            imagemin.gifsicle({interlaced: true}),
-            jpegoptim(options.jpeg),
-            _if(options.png.lossless, optipng(options.png.optipng), pngquant(options.png.pngquant)),
-            imagemin.svgo({
-                plugins: [
-                    {removeViewBox: false},
-                    {cleanupIDs: false}
-                ]
-            })
-        ], {
-            verbose: true
-        }))
-        .pipe(gulp.dest(paths.img.dest))
-        .pipe(browserSync.stream({once: true}))
-});
+function setProduction(done) {
+  generateSourcemaps = false;
+  done();
+}
 
-gulp.task('assets:fonts', function () {
-    return gulp.src(paths.fonts.src + paths.fonts.mask)
-        .pipe(gulp.dest(paths.fonts.dest));
-});
+function html(done) {
+  if (!options.enableIntegration) {
+    return gulp.src(paths.html.src + paths.html.mask)
+      .pipe(plumber({ errorHandle: handleError }))
+      .pipe(fileinclude())
+      .pipe(gulp.dest(paths.html.dest))
+      .pipe(browserSync.stream({ once: true }));
+  }
+  done();
+}
 
-gulp.task('vendor:js', function () {
-    return gulp.src(exists(libs.scripts))
-        .pipe(plumber({errorHandle: handleError}))
-        .pipe(_if(!options.production, sourcemaps.init()))
-        .pipe(concat(paths.vendor.js))
-        .pipe(uglify())
-        .pipe(_if(!options.production, sourcemaps.write('.')))
-        .pipe(gulp.dest(paths.js.dest));
-});
+function styles() {
+  return gulp.src(paths.sass.src + paths.sass.mask)
+    .pipe(plumber({ errorHandle: handleError }))
+    .pipe(_if(generateSourcemaps, sourcemaps.init()))
+    .pipe(sass())
+    .pipe(autoprefixer([
+      '>1%',
+      'not ie 11',
+      'not op_mini all',
+    ]))
+    .pipe(cleanCss())
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(_if(generateSourcemaps, sourcemaps.write('.')))
+    .pipe(gulp.dest(paths.sass.dest))
+    .pipe(browserSync.stream({ once: true }));
+}
 
-gulp.task('vendor:styles', function () {
-    return gulp.src(exists(libs.styles))
-        .pipe(plumber({errorHandle: handleError}))
-        .pipe(sass().on('error', handleError))
-        .pipe(_if(!options.production, sourcemaps.init()))
-        .pipe(concat(paths.vendor.css))
-        .pipe(autoprefixer(['last 15 versions', '> 1%', 'ie 8', 'ie 7'], {cascade: true}))
-        .pipe(cleanCss())
-        .pipe(_if(!options.production, sourcemaps.write('.')))
-        .pipe(gulp.dest(paths.sass.dest))
-});
+function scripts() {
+  return gulp.src(paths.js.src + paths.js.mask)
+    .pipe(plumber({ errorHandle: handleError }))
+    .pipe(_if(generateSourcemaps, sourcemaps.init()))
+    .pipe(fileinclude())
+    .pipe(uglify())
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(_if(generateSourcemaps, sourcemaps.write('.')))
+    .pipe(gulp.dest(paths.js.dest))
+    .pipe(browserSync.stream({ once: true }));
+}
 
-gulp.task('clean', function () {
-    if (options.useTemplates) {
-        return del.sync([options.destDir + '/**/*', '!' + options.destDir + '/.gitkeep'], {dot: true});
-    } else {
-        return del.sync([
-            paths.js.dest,
-            paths.sass.dest,
-            paths.img.dest,
-            paths.fonts.dest
-        ]);
-    }
-});
+function images() {
+  return gulp.src(paths.img.src + paths.img.mask)
+    .pipe(plumber({ errorHandle: handleError }))
+    .pipe(changed(paths.img.dest))
+    .pipe(imagemin([
+      imagemin.gifsicle({ interlaced: true }),
+      jpegoptim(options.jpeg),
+      _if(options.png.lossless, optipng(options.png.optipng),
+        pngquant(options.png.pngquant)),
+      imagemin.svgo({
+        plugins: [
+          { removeViewBox: false },
+          { cleanupIDs: false },
+        ],
+      }),
+    ], {
+      verbose: true,
+    }))
+    .pipe(gulp.dest(paths.img.dest))
+    .pipe(browserSync.stream({ once: true }));
+}
 
-gulp.task('watch', ['build'], function () {
-    gulp.watch(paths.watch.sass, ['assets:sass']).on('change', function (event) {
-        handleWatchEvent(event, paths.sass, 'SASS')
+function fonts() {
+  return gulp.src(paths.fonts.src + paths.fonts.mask)
+    .pipe(gulp.dest(paths.fonts.dest));
+}
+
+function vendorScripts() {
+  return gulp.src(libs.scripts)
+    .pipe(plumber({ errorHandle: handleError }))
+    .pipe(concat(paths.vendor.js))
+    .pipe(uglify())
+    .pipe(gulp.dest(paths.js.dest));
+}
+
+function vendorStyles() {
+  const sassStream = gulp.src(libs.styles.sass).pipe(sass());
+  const cssStream = gulp.src(libs.styles.css);
+
+  return merge(sassStream, cssStream)
+    .pipe(plumber({ errorHandle: handleError }))
+    .pipe(concat(paths.vendor.css))
+    .pipe(autoprefixer([
+      '>1%',
+      'not ie 11',
+      'not op_mini all',
+    ]))
+    .pipe(cleanCss())
+    .pipe(gulp.dest(paths.sass.dest));
+}
+
+function clean(done) {
+  if (!options.enableIntegration) {
+    del.sync([options.destDir + '/**/*', '!' + options.destDir + '/.gitkeep'],
+      { dot: true });
+  } else {
+    del.sync([
+      paths.js.dest,
+      paths.sass.dest,
+      paths.img.dest,
+      paths.fonts.dest,
+    ]);
+  }
+  done();
+}
+
+function runWatch() {
+  gulp.watch(paths.watch.sass, { usePolling: true },
+    gulp.series(styles, reload))
+    .on('unlink', function(event) {
+      handleWatchEvent(event, paths.sass, 'SASS');
     });
-    gulp.watch(paths.watch.js, ['assets:js']).on('change', function (event) {
-        handleWatchEvent(event, paths.js, 'JS')
+  gulp.watch(paths.watch.js, { usePolling: true }, gulp.series(scripts, reload))
+    .on('unlink', function(event) {
+      handleWatchEvent(event, paths.js, 'JS');
     });
-    gulp.watch(paths.watch.img, ['assets:img']).on('change', function (event) {
-        handleWatchEvent(event, paths.img, 'IMG')
+  gulp.watch(paths.watch.img, { usePolling: true }, gulp.series(images, reload))
+    .on('unlink', function(event) {
+      handleWatchEvent(event, paths.img, 'IMG');
     });
-    gulp.watch(paths.watch.fonts, ['assets:fonts']).on('change', function (event) {
-        handleWatchEvent(event, paths.fonts, 'FONTS')
-    });
-    if (options.useTemplates) {
-        gulp.watch(paths.watch.html, ['assets:html']).on('change', function (event) {
-            handleWatchEvent(event, paths.html, 'HTML')
-        });
-    }
-});
+  gulp.watch(paths.watch.fonts, { usePolling: true },
+    gulp.series(images, reload)).on('unlink', function(event) {
+    handleWatchEvent(event, paths.fonts, 'FONTS');
+  });
+  if (!options.enableIntegration) {
+    gulp.watch(paths.watch.html, { usePolling: true },
+      gulp.series(html, reload))
+      .on('unlink', function(event) {
+        handleWatchEvent(event, paths.html, 'HTML');
+      });
+  }
+}
 
-gulp.task('php', ['watch'], function () {
-    connectPhp.server({base: options.destDir, keepalive: true, hostname: options.phpProxyHost, phpProxyPort: options.phpProxyPort, open: false});
-    browserSync.init({
-        proxy: options.phpProxyHost + ':' + options.phpProxyPort,
-        notify: options.notifications,
-        open: options.openBrowser
-    });
-});
+const assets = gulp.parallel(html, styles, scripts, images, fonts);
 
-gulp.task('live', ['watch'], function () {
-    browserSync.init({
-        server: {
-            baseDir: options.destDir
-        },
-        notify: options.notifications,
-        open: options.openBrowser
-    });
-});
+const vendor = gulp.parallel(vendorScripts, vendorStyles);
 
-gulp.task('build', [
-    'clean',
-    'vendor:styles',
-    'vendor:js',
-    'assets:sass',
-    'assets:js',
-    'assets:img',
-    'assets:html',
-    'assets:fonts'
-]);
+const build = gulp.series(clean, gulp.parallel(assets, vendor));
 
-gulp.task('production', function () {
-    options.production = true;
-    gulp.run(['assets:sass', 'assets:js'])
-});
+const watch = gulp.parallel(build, runWatch);
 
-gulp.task('vendor', ['vendor:styles', 'vendor:js']);
+const live = gulp.series(sync, watch);
 
-gulp.task('default', ['build']);
+const production = gulp.series(setProduction, build);
+
+gulp.task('assets', assets);
+
+gulp.task('html', html);
+
+gulp.task('styles', styles);
+
+gulp.task('scripts', scripts);
+
+gulp.task('images', images);
+
+gulp.task('fonts', fonts);
+
+gulp.task('vendor', vendor);
+
+gulp.task('watch', watch);
+
+gulp.task('live', live);
+
+gulp.task('default', production);
