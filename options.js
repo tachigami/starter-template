@@ -8,7 +8,7 @@ module.exports = {
   openBrowser: true,
   notifications: true,
   srcDir: 'assets',
-  destDir: 'public',
+  destDir: 'static',
   jpeg: {
     progressive: true,
     max: 90,
@@ -22,7 +22,7 @@ module.exports = {
     },
     // lossy
     pngquant: {
-      quality: 80,
+      quality: [0.6, 0.8],
       speed: 1,
     },
   },

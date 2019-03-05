@@ -11,7 +11,6 @@ const cleanCss = require('gulp-clean-css');
 const rename = require('gulp-rename');
 const del = require('del');
 const imagemin = require('gulp-imagemin');
-const optipng = require('imagemin-optipng');
 const pngquant = require('imagemin-pngquant');
 const jpegoptim = require('imagemin-jpegoptim');
 const autoprefixer = require('gulp-autoprefixer');
@@ -41,7 +40,7 @@ const paths = {
   img: {
     src: options.srcDir + '/img',
     dest: options.destDir + '/img',
-    mask: '/**/*.*',
+    mask: '/**/*.+(png|jpg|jpeg|gif|svg)',
   },
   html: {
     src: options.srcDir + '/templates',
@@ -84,7 +83,7 @@ function handleWatchEvent(event, filePath, description) {
   var filePathFromSrc = path.relative(path.resolve(filePath.src), event);
   var destFilePath = path.resolve(filePath.dest, filePathFromSrc);
   console.log('Deleting: ' + destFilePath);
-  del.sync(destFilePath);
+  del.sync(destFilePath, {force: true});
   if (options.notifications) {
     notify({
       title: 'Gulp Task Complete',
@@ -167,11 +166,11 @@ function images() {
     .pipe(imagemin([
       imagemin.gifsicle({ interlaced: true }),
       jpegoptim(options.jpeg),
-      _if(options.png.lossless, optipng(options.png.optipng),
-        pngquant(options.png.pngquant)),
+      _if(options.png.lossless, imagemin.optipng(options.png.optipng), pngquant(options.png.pngquant)),
       imagemin.svgo({
         plugins: [
           { removeViewBox: false },
+          { removeUnknownsAndDefaults: { unknownAttrs: false } },
           { cleanupIDs: false },
         ],
       }),
@@ -187,7 +186,10 @@ function fonts() {
     .pipe(gulp.dest(paths.fonts.dest));
 }
 
-function vendorScripts() {
+function vendorScripts(cb) {
+  if (libs.scripts.length <= 0) {
+    return cb();
+  }
   return gulp.src(libs.scripts)
     .pipe(plumber({ errorHandle: handleError }))
     .pipe(concat(paths.vendor.js))
@@ -195,11 +197,20 @@ function vendorScripts() {
     .pipe(gulp.dest(paths.js.dest));
 }
 
-function vendorStyles() {
-  const sassStream = gulp.src(libs.styles.sass).pipe(sass());
-  const cssStream = gulp.src(libs.styles.css);
+function vendorStyles(cb) {
+  var stream = merge();
+  if (libs.styles.sass.length > 0) {
+    stream.add(gulp.src(libs.styles.sass).pipe(sass()));
+  }
+  if (libs.styles.css.length > 0) {
+    stream.add(gulp.src(libs.styles.css));
+  }
 
-  return merge(sassStream, cssStream)
+  if (stream.isEmpty()) {
+    return cb();
+  }
+
+  return stream
     .pipe(plumber({ errorHandle: handleError }))
     .pipe(concat(paths.vendor.css))
     .pipe(autoprefixer([
@@ -221,7 +232,7 @@ function clean(done) {
       paths.sass.dest,
       paths.img.dest,
       paths.fonts.dest,
-    ]);
+    ], {force: true});
   }
   done();
 }
