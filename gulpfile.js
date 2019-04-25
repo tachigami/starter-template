@@ -172,6 +172,7 @@ function images() {
           { removeViewBox: false },
           { removeUnknownsAndDefaults: { unknownAttrs: false } },
           { cleanupIDs: false },
+          { collapseGroups: false },
         ],
       }),
     ], {
