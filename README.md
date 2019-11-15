@@ -1,6 +1,6 @@
 # [Шаблон для сборки HTML страниц при помощи Gulp](https://github.com/TeroBlaZe/starter-template)
 
-**Внимание! Данный проект больше не поддерживается. Альтернатива с поддержкой webpack и es6: https://github.com/TeroBlaZe/encore-demo-template**
+**Внимание! Данный проект больше не поддерживается. Альтернатива с поддержкой webpack и es6: https://gitlab.com/Bronner/encore-demo-template**
 
 Этот проект предназначен для быстрой и удобной разработки современных, адаптивных и оптимизированных HTML страниц.
 
